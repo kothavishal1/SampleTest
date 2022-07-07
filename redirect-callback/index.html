@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Simplified IO SSO Rediect</title>
+</head>
+<style>
+    .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-msg {
+        padding: 15px;
+    }
+</style>
+<body>
+     <div class="loading-container"> 
+     <div class="loader"> 
+     </div> 
+     <div class="loading-msg"> 
+     </div> 
+     </div> 
+    CALL BACK RENDERED <input type="button" name="logout" value="logout" onclick="logout()" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.11.5/oidc-client.js" integrity="sha512-pH7OSLRxkHElePmZdZIEknPr9lYKn5KC69xj/jlzKEEcdzjjMpTqzVEe+EYN/Rcay2L0nfw/X9zPOm6CXQ6B/A==" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        var config = {
+            authority: 'https://ids-qa.zenotibeta.com',
+            client_id: '38b3daf7-1b99-11ec-ae6e-025d638959c3',
+            client_secret: 'f618e597429d43e89440462aa060ef6faac9de9ee6fd40ee9d503d3540cf9e40',
+            redirect_uri: 'httpS://dev.marketing.simplified.io/redirect-callback',
+            response_type: "code",
+            scope: "api",
+            acr_values: "tenant:"
+        };
+
+        var data = [];
+        const params = new URLSearchParams(window.location.search)
+        for (const param of params) {
+            data.push(param[1]);
+            console.log(param[1]);
+        }
+
+        setTimeout(function () {
+            $('.loading-container').fadeOut('fast');
+        }, 3000);
+
+        var mgr = new Oidc.UserManager(config);
+
+        //function logout() {
+        //    mgr.signoutRedirect();
+        //}
+
+        function logout(id_token) {
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+            if (id_token) {
+                mgr.signoutRedirect({ 'id_token_hint': id_token });
+            }
+            else {
+                mgr.signoutRedirect();
+            }
+
+        }
+
+
+       
+     
+        $(document).ready(function () {
+
+            $.ajax({
+                type: 'POST',
+                url: 'https://ids-qa.zenotibeta.com/connect/token',
+                data: {
+                    //client_id: '38b3daf7-1b99-11ec-ae6e-025d638959c3',
+                    //client_secret: 'f618e597429d43e89440462aa060ef6faac9de9ee6fd40ee9d503d3540cf9e40',
+                    //code: data[0],
+                    //redirect_uri: 'https://smphftest.simplified.io/redirect-callback'
+
+                    client_id: "72f850a6-e718-11ec-ae6e-025d638959c3",
+                    client_secret: "eb2a4d3d538242a6bde9b71715c1732ff77f9ea651a742588331c63e430859fa",
+                    code: "4E9EE0DBADDCE35B38A9D482EC548B1401241C7AF1EDC95D9C38DAAA86F1A347",
+                    redirect_uri: "https://smphftest.simplified.io/redirect-callback",
+                    code_verifier: "82d1fc76756e4e78a4159ae0a5fee92613d97736cbff4f3583ed4b9bc90e4f55914f49fc2156453f83db362998557d6b",
+                    grant_type: "authorization_code"
+                },
+                dataType: "text",
+                contentType: "application/x-www-form-urlencoded",
+                success: function (resultData) { alert("Save Complete") },
+                error: function (error) { alert("Something went wrong"); console.log("AJAX Error", error) }
+            });
+
+        })
+
+
+
+    </script>
+</body>
+</html>
