@@ -1,0 +1,112 @@
+<html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.11.5/oidc-client.js" integrity="sha512-pH7OSLRxkHElePmZdZIEknPr9lYKn5KC69xj/jlzKEEcdzjjMpTqzVEe+EYN/Rcay2L0nfw/X9zPOm6CXQ6B/A==" crossorigin="anonymous"></script>
+<script>
+    //var config = {
+    //    authority: 'https://ids-qa.zenotibeta.com',
+    //    client_id: '38b3daf7-1b99-11ec-ae6e-025d638959c3',
+    //    client_secret: 'f618e597429d43e89440462aa060ef6faac9de9ee6fd40ee9d503d3540cf9e40',
+    //    redirect_uri: 'httpS://dev.marketing.simplified.io/redirect-callback',
+    //    response_type: "code",
+    //    scope: "api",
+    //    acr_values: "tenant:"
+    //};
+
+    var config = {
+        'authority': 'https://ids-qa.zenotibeta.com',
+        'client_id': '72f850a6-e718-11ec-ae6e-025d638959c3',
+        'client_secret': 'eb2a4d3d538242a6bde9b71715c1732ff77f9ea651a742588331c63e430859fa',
+        'redirect_uri': 'https://smphftest.simplified.io/redirect-callback',
+        'response_type': "code",
+        'scope': "openid api",
+        'acr_values': "tenant:",
+        'post_logout_redirect_uri': 'https://smphftest.simplified.io/redirect-callback'
+    };
+
+    //var config = {
+    //    'authority': 'https://ids-qa.zenotibeta.com',
+    //    'client_id': '72f850a6-e718-11ec-ae6e-025d638959c3',
+    //    'client_secret': 'eb2a4d3d538242a6bde9b71715c1732ff77f9ea651a742588331c63e430859fa',
+    //    'redirect_uri': 'https://smphftest.simplified.io/redirect-callback',
+    //    'response_type': "code",
+    //    'scope': "openid api",
+    //    'acr_values': "tenant:",
+    //    'post_logout_redirect_uri': 'https://smphftest.simplified.io/redirect-callback'
+    //};
+
+
+    //<!-- 'helpUrl': 'https://help.zenoti.com', -->
+    // <!-- 'apiUrl': 'http://devapi.zenoti.com', -->
+    // <!-- 'authRequired': true, -->
+    // <!-- 'clientId': '38b3daf7-1b99-11ec-ae6e-025d638959c3', -->
+    // <!-- 'clientSecret': -->
+    //     <!-- 'f618e597429d43e89440462aa060ef6faac9de9ee6fd40ee9d503d3540cf9e40', -->
+    // <!-- 'issuerUrl': 'https://ids-qa.zenotibeta.com', -->
+    // <!-- 'redirectUri': 'https://dev.marketing.simplified.io/redirect-callback', -->
+    // <!-- 'accountName': 'dev' -->
+
+    var mgr = new Oidc.UserManager(config);
+
+    mgr.getUser().then(function (user) {
+        console.log('redirecting the user');
+        if (user) {
+            console.log("User" , user);
+            loginTheUser(user);
+        }
+        else {
+            console.log("Authentication is in progress");
+            login();
+        }
+    });
+
+    function login() {
+        mgr.signinRedirect();
+    }
+
+    function logout() {
+        mgr.signoutRedirect();
+    }
+
+    function loginTheUser(user) {
+        if (user) {
+            // use user.access_token to invoke zenoti apis
+        }
+    }
+
+    new Oidc.UserManager({ response_mode: "query" }).signinRedirectCallback().then(function (user) {
+
+        console.log('redirecting the user');
+        var httpPath = window.location.origin;
+        var httpsPath = httpPath.replace('http:', 'https:');
+        window.location = httpsPath;
+    }).catch(function (e) {
+
+        var user = window.sessionStorage.getItem('user');
+        if (user) {
+            console.log('user already exists. this is an erroneous call for redirection');
+        }
+        else {
+            console.log('error in redirection');
+            console.log(e);
+            var httpPath = window.location.origin;
+            var httpsPath = httpPath.replace('http:', 'https:');
+            window.location = httpsPath;
+        }
+
+    });
+
+    function logout(id_token) {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+        if (id_token) {
+            mgr.signoutRedirect({ 'id_token_hint': id_token });
+        }
+        else {
+            window.location.href = "/login";
+        }
+
+    }
+</script>
+<body>
+    Body Rendered
+</body>
+</html>
